@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
-using System;
+using System.Collections.Generic;
 
 namespace UI
 {
@@ -15,15 +15,16 @@ namespace UI
     public class UIElement
     {
         public Texture2D _pixel;
-        
+
         public Vector2 LocalPosition;
         public Vector2 GlobalPosition;
         public int Width;
         public int Height;
         public UIElement Parent;
         public Align Align;
+        public bool Visible;
 
-        public UIElement(GraphicsDevice graphicsDevice, int x, int y, int width, int height, Align align = Align.None, UIElement parent = null)
+        public UIElement(GraphicsDevice graphicsDevice, int x, int y, int width, int height, Align align = Align.None, UIElement parent = null, bool visible = true)
         {
             _pixel = new Texture2D(graphicsDevice, 1, 1);
             _pixel.SetData(new[] { Color.White });
@@ -34,46 +35,46 @@ namespace UI
             LocalPosition = new Vector2(x, y);
             if (Parent != null) { GlobalPosition = Parent.LocalPosition; }
             else { GlobalPosition = LocalPosition; }
-            
-            Parent = parent;
 
+            Parent = parent;
             Align = align;
+            Visible = visible;
         }
-        
-        
-        public virtual void Draw(SpriteBatch spriteBatch) 
+
+
+        public virtual void Draw(SpriteBatch spriteBatch)
         {
             GlobalPosition = UpdatePosition(this);
             spriteBatch.Draw(_pixel, new Rectangle((int)this.GlobalPosition.X, (int)GlobalPosition.Y, (int)Width, (int)Height), Color.Wheat);
         }
-        
-        public Vector2 UpdatePosition(UIElement element) 
+
+        public Vector2 UpdatePosition(UIElement element)
         {
-            if (element.Parent != null) 
+            if (element.Parent != null)
             {
-                if (element.Align != Align.None) 
+                if (element.Align != Align.None)
                 {
-                    switch (element.Align) 
+                    switch (element.Align)
                     {
                         //Center
-                        case Align.Center: { return new Vector2(element.Parent.GlobalPosition.X + ((element.Parent.Width - element.Width) / 2) - element.LocalPosition.X, element.Parent.GlobalPosition.Y + ((element.Parent.Height - element.Height) / 2)- element.LocalPosition.Y); }
+                        case Align.Center: { return new Vector2(element.Parent.GlobalPosition.X + ((element.Parent.Width - element.Width) / 2) - element.LocalPosition.X, element.Parent.GlobalPosition.Y + ((element.Parent.Height - element.Height) / 2) - element.LocalPosition.Y); }
                         case Align.TopCenter: { return new Vector2(element.Parent.GlobalPosition.X + (element.Parent.Width - element.Width) / 2, element.Parent.LocalPosition.Y - element.Parent.Height / 2); }
                         case Align.BottomCenter: { return new Vector2(element.Parent.GlobalPosition.X + (element.Parent.Width - element.Width) / 2, element.Parent.LocalPosition.Y + element.Parent.Height / 2 - element.Height); }
-                        
+
                         //Left
-                        
-                        
+
+
                         //Right
                     }
                 }
 
                 return new Vector2(element.Parent.GlobalPosition.X - element.LocalPosition.X, element.Parent.GlobalPosition.Y - element.LocalPosition.Y);
             }
-            else 
+            else
             {
-                if (element.Align != Align.None) 
+                if (element.Align != Align.None)
                 {
-                    switch (element.Align) 
+                    switch (element.Align)
                     {
                         case Align.Center: { return new Vector2(element.LocalPosition.X - element.Width / 2, element.LocalPosition.Y - element.Height / 2); }
                     }
@@ -82,13 +83,17 @@ namespace UI
 
             return new Vector2(element.LocalPosition.X, element.LocalPosition.Y);
         }
+        
+        public void Hide() { Visible = false; }
+        public void Show() { Visible = true; }
+        public void ToggleVisibility() { Visible = !Visible; }
     }
-    
+
     public class Panel : UIElement
     {
         public Color Color;
 
-        public Panel(GraphicsDevice graphicsDevice, int x, int y, int width, int height, Color color, Align align = Align.None, UIElement parent = null) : base(graphicsDevice, x, y, width, height, align, parent)
+        public Panel(GraphicsDevice graphicsDevice, int x, int y, int width, int height, Color color, Align align = Align.None, UIElement parent = null, bool visible = true) : base(graphicsDevice, x, y, width, height, align, parent, visible)
         {
             Color = color;
         }
@@ -97,6 +102,28 @@ namespace UI
         {
             GlobalPosition = UpdatePosition(this);
             spriteBatch.Draw(_pixel, new Rectangle((int)GlobalPosition.X, (int)GlobalPosition.Y, (int)Width, (int)Height), Color);
+        }
+    }
+
+    public static class UIutils
+    {
+        public static List<UIElement> UIElements = new List<UIElement>();
+
+        public static Panel CreatePanel(GraphicsDevice graphicsDevice, int x, int y, int width, int height, Color color, Align align = Align.None, UIElement parent = null, bool visible = true)
+        {
+            UIElements.Add(new Panel(graphicsDevice, x, y, width, height, color, align, parent, visible));
+            return UIElements[UIElements.Count - 1] as Panel;
+        }
+        
+        public static void DrawUIElements(SpriteBatch _spriteBatch) 
+        {
+            foreach (UIElement UIElement in UIElements) 
+            {
+                if (UIElement.Visible) 
+                {
+                    UIElement.Draw(_spriteBatch);
+                }
+            }
         }
     }
 }

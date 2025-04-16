@@ -30,3 +30,4 @@
 /home/katzi/MonoGame/obj/Debug/net8.0/MonoGame.genruntimeconfig.cache
 /home/katzi/MonoGame/obj/Debug/net8.0/ref/MonoGame.dll
 /home/katzi/MonoGame/bin/Debug/net8.0/Content/ball.xnb
+/home/katzi/MonoGame/obj/Debug/net8.0/MonoGame.sourcelink.json
