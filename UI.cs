@@ -1,6 +1,10 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System.Net.Mime;
+using MonoGame;
+using System;
+using System.Globalization;
 
 namespace UI
 {
@@ -104,6 +108,33 @@ namespace UI
             spriteBatch.Draw(_pixel, new Rectangle((int)GlobalPosition.X, (int)GlobalPosition.Y, (int)Width, (int)Height), Color);
         }
     }
+    
+    public class Text : UIElement
+    {
+        private SpriteFont Font;
+        public int Size;
+        public string TextString;
+        public Color Color;
+        public float Rotation;
+        private Vector2 Origin;
+        public float Scale;
+
+        public Text(GraphicsDevice graphicsDevice, int x, int y, string text, SpriteFont font, Color color, float scale, float rotation = 0, Vector2 origin = new Vector2(), int width = 0, int height = 0, Align align = Align.None, UIElement parent = null, bool visible = true) : base(graphicsDevice, x, y, width, height, align, parent, visible) 
+        {
+            Font = font;
+            TextString = text;
+            Color = color;
+            Rotation = rotation;
+            Origin = origin;
+            Scale = scale;
+        }
+
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            GlobalPosition = UpdatePosition(this);
+            spriteBatch.DrawString(Font, TextString, GlobalPosition, Color, Rotation, Origin, Scale, SpriteEffects.None, 0);
+        }
+    }
 
     public static class UIutils
     {
@@ -113,6 +144,12 @@ namespace UI
         {
             UIElements.Add(new Panel(graphicsDevice, x, y, width, height, color, align, parent, visible));
             return UIElements[UIElements.Count - 1] as Panel;
+        }
+
+        public static Text CreateText(GraphicsDevice graphicsDevice, int x, int y, string text, SpriteFont font, Color color, float scale, Align align = Align.None, UIElement parent = null, bool visible = true, float rotation = 0, Vector2 origin = new Vector2()) 
+        {
+            UIElements.Add(new Text(graphicsDevice, x, y, text, font, color, scale, rotation, origin, (int)font.MeasureString(text).X, (int)font.MeasureString(text).Y, align, parent, visible));
+            return UIElements[UIElements.Count - 1] as Text;
         }
         
         public static void DrawUIElements(SpriteBatch _spriteBatch) 

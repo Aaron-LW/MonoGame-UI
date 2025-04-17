@@ -4,7 +4,7 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>/home/katzi/MonoGame/Content/ball.png</File>
+    <File>/home/katzi/MonoGame/Content/font.spritefont</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />
