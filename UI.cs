@@ -1,10 +1,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
-using System.Net.Mime;
-using MonoGame;
 using System;
-using System.Globalization;
 
 namespace UI
 {
@@ -14,6 +11,7 @@ namespace UI
         Center,
         TopCenter,
         BottomCenter,
+        LeftCenter
     }
 
     public class UIElement
@@ -66,7 +64,7 @@ namespace UI
                         case Align.BottomCenter: { return new Vector2(element.Parent.GlobalPosition.X + (element.Parent.Width - element.Width) / 2, element.Parent.LocalPosition.Y + element.Parent.Height / 2 - element.Height); }
 
                         //Left
-
+                        case Align.LeftCenter: { return new Vector2(element.Parent.GlobalPosition.X + element.LocalPosition.X, element.Parent.GlobalPosition.Y + element.Parent.Height / 2 + element.LocalPosition.Y - element.Height / 2); }
 
                         //Right
                     }
@@ -80,7 +78,13 @@ namespace UI
                 {
                     switch (element.Align)
                     {
+                        //Center
                         case Align.Center: { return new Vector2(element.LocalPosition.X - element.Width / 2, element.LocalPosition.Y - element.Height / 2); }
+                        case Align.TopCenter: { return new Vector2(element.LocalPosition.X - element.Width / 2, element.LocalPosition.Y / 2); }
+                        case Align.BottomCenter: { return new Vector2(element.LocalPosition.X - element.Width / 2, element.LocalPosition.Y - element.Height); }
+                        
+                        //Left
+                        case Align.LeftCenter: { return new Vector2(element.LocalPosition.X, element.LocalPosition.Y - element.Height / 2); }
                     }
                 }
             }
@@ -156,7 +160,9 @@ namespace UI
         {
             foreach (UIElement UIElement in UIElements) 
             {
-                if (UIElement.Visible) 
+                if (UIElement.Parent != null && !UIElement.Parent.Visible) { return; }
+                
+                if (UIElement.Visible)
                 {
                     UIElement.Draw(_spriteBatch);
                 }
