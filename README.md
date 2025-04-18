@@ -27,6 +27,7 @@ Making Text: <br>
 To draw everything you'll have to use `DrawUIElements(SpriteBatch)` in the Draw function
 
 **Alignments**
-- TopCenter (top of itself or the parent object)
-- Center (center of itself or the parent object)
-- BottomCenter (bottom of itself or the parent object)
+- TopCenter
+- Center
+- BottomCenter
+- LeftCenter
