@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System;
+using Microsoft.Xna.Framework.Input;
 
 namespace UI
 {
@@ -95,6 +96,8 @@ namespace UI
         public void Hide() { Visible = false; }
         public void Show() { Visible = true; }
         public void ToggleVisibility() { Visible = !Visible; }
+        
+        public void Dispose() { _pixel?.Dispose(); }
     }
 
     public class Panel : UIElement
@@ -139,6 +142,35 @@ namespace UI
             spriteBatch.DrawString(Font, TextString, GlobalPosition, Color, Rotation, Origin, Scale, SpriteEffects.None, 0);
         }
     }
+    
+    public class Button : UIElement 
+    {
+        public Color Color;
+        public Action pressAction;
+        
+        public Button(GraphicsDevice graphicsDevice, int x, int y, int width, int height, Color color, Action pressaction, Align align = Align.None, UIElement parent = null, bool visible = true) : base(graphicsDevice, x, y, width, height, align, parent, visible) 
+        {
+            Color = color;
+            pressAction = pressaction;
+        }
+        
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            GlobalPosition = UpdatePosition(this);
+            spriteBatch.Draw(_pixel, new Rectangle((int)GlobalPosition.X, (int)GlobalPosition.Y, (int)Width, (int)Height), Color);
+        }
+        
+        public bool CheckHover() 
+        {
+            Point MousePos = Mouse.GetState().Position;
+
+            if (MousePos.X > this.GlobalPosition.X && MousePos.X < this.GlobalPosition.X + this.Width && MousePos.Y > this.GlobalPosition.Y && MousePos.Y < this.GlobalPosition.Y + this.Height) 
+            {
+                return true;
+            }
+            else { return false; }
+        }
+    }
 
     public static class UIutils
     {
@@ -156,11 +188,18 @@ namespace UI
             return UIElements[UIElements.Count - 1] as Text;
         }
         
+        public static Button CreateButton(GraphicsDevice graphicsDevice, int x, int y, int width, int height, Color color, Action pressaction, Align align = Align.None, UIElement parent = null, bool visible = true)
+        {
+            UIElements.Add(new Button(graphicsDevice, x, y, width, height, color, pressaction, align, parent, visible));
+            return UIElements[UIElements.Count - 1] as Button;
+        }
+
+        
         public static void DrawUIElements(SpriteBatch _spriteBatch) 
         {
             foreach (UIElement UIElement in UIElements) 
             {
-                if (UIElement.Parent != null && !UIElement.Parent.Visible) { return; }
+                if (UIElement.Parent != null && !UIElement.Parent.Visible) { continue; }
                 
                 if (UIElement.Visible)
                 {
@@ -168,5 +207,57 @@ namespace UI
                 }
             }
         }
+        
+        public static void TickButtons() 
+        {
+            List<Action> Actions = new List<Action>();
+        
+            foreach(UIElement element in UIElements) 
+            {
+                if (element is Button button)
+                {
+                    if (button.CheckHover()) 
+                    {
+                        Actions.Add(button.pressAction);
+                    }
+                }
+            }
+            
+            foreach(Action action in Actions) 
+            {
+                action?.Invoke();
+            }
+        }
+        
+        public static void RemoveUIElement(UIElement element)
+        {
+            element.Dispose();
+            UIElements.Remove(element);
+        }
+        
+        public static Color ColorFromHex(string hex)
+        {
+            if (hex.StartsWith("#"))
+                hex = hex.Substring(1);
+
+            if (hex.Length == 6)
+            {
+                byte r = byte.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+                byte g = byte.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+                byte b = byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+                return new Color(r, g, b);
+            }
+            else if (hex.Length == 8)
+            {
+                byte a = byte.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+                byte r = byte.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+                byte g = byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+                byte b = byte.Parse(hex.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
+                return new Color(r, g, b, a);
+            }
+
+            throw new ArgumentException("Not a hex string: " + hex);
+        }
+
     }
 }
