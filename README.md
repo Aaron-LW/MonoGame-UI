@@ -22,7 +22,7 @@ Making Text: <br>
 - Make a reference using `private Text myText` <br>
 - Go to LoadContent and write `myText = UIutils.CreateText(graphicsDevice, x, y, text, font, color, scale, align, parent, visible, rotation, origin)`
 - To add a font you need to go to the mgcb editor and add a .spritebatch file, you then make a reference to that file by using `private SpriteFont font`
-- Then in LoadContent you use `Content.Load<SpriteFont>("name of the file")
+- Then in LoadContent you use `Content.Load<SpriteFont>("name of the file")`
 
 To draw everything you'll have to use `DrawUIElements(SpriteBatch)` in the Draw function
 
